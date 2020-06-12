@@ -29,3 +29,4 @@ Werkzeug==0.15.4
 requests
 datetime
 sqlalchemy
+psycopg2
