@@ -18,7 +18,7 @@ host = "dataviz-project2.cx41ow9tqpnq.us-east-2.rds.amazonaws.com"
 port = "5432"
 db = "postgres"
 uri = f"postgresql://{user}:{password}@{host}:{port}/{db}"
-uri
+
 
 # uri= "sqlite:///db/covid19.sqlite"
 engine = create_engine(uri)
@@ -28,13 +28,20 @@ conn = engine.connect()
 #John Hopkins data
 url1= "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv"
 url2= "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv"
+
+
 #European CDC data
 url3= "https://opendata.ecdc.europa.eu/covid19/casedistribution/csv"
 
 #John Hopkins data
 
-us_confirmed=pd.read_csv(url1)
+us_confirmed = pd.read_csv(url1)
 us_deaths= pd.read_csv(url2)
+global_deaths =  pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv')
+global_confirmed = pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv')
+global_recovered = pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv')
+country = pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/web-data/data/cases_country.csv')
+
 
 #European CDC data
 ecdc = pd.read_csv(url3)
@@ -54,4 +61,23 @@ arcgis.set_index("OBJECTID")
 arcgis = arcgis[["Country_Region", "Province_State", "Lat", "Long_", "Confirmed", "Recovered", "Deaths", "Last_Update"]]
 #preview tranformed data
 # arcgis.head()
-arcgis.to_sql("test-table", conn, index=False, if_exists="replace")
+# arcgis.to_sql("test-table", conn, index=False, if_exists="replace")
+us_confirmed.to_sql("us_confirmed", conn, index=False, if_exists="replace")
+engine.execute("ALTER TABLE us_confirmed ADD COLUMN ID SERIAL PRIMARY KEY;")
+us_deaths.to_sql("us_deaths",conn, index=False, if_exists="replace")
+engine.execute("ALTER TABLE us_deaths ADD COLUMN ID SERIAL PRIMARY KEY;")
+ecdc.to_sql("ecdc",conn, index=False, if_exists="replace")
+engine.execute("ALTER TABLE ecdc ADD COLUMN ID SERIAL PRIMARY KEY;")
+arcgis.to_sql("arcgis",conn, index=False, if_exists="replace")
+engine.execute("ALTER TABLE arcgis ADD COLUMN ID SERIAL PRIMARY KEY;")
+global_confirmed.to_sql("global_confirmed", conn, index=False, if_exists="replace")
+engine.execute("ALTER TABLE global_confirmed ADD COLUMN ID SERIAL PRIMARY KEY;")
+global_deaths.to_sql("global_deaths", conn, index=False, if_exists="replace")
+engine.execute("ALTER TABLE global_deaths ADD COLUMN ID SERIAL PRIMARY KEY;")
+global_recovered.to_sql("global_recovered", conn, index=False, if_exists="replace")
+engine.execute("ALTER TABLE global_recovered ADD COLUMN ID SERIAL PRIMARY KEY;")
+country.to_sql("country", conn, index=False, if_exists="replace")
+engine.execute("ALTER TABLE country ADD COLUMN ID SERIAL PRIMARY KEY;")
+
+
+
